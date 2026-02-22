@@ -1,0 +1,2967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineVerse X - Premium Streaming Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --bg-primary: #050508;
+            --bg-secondary: #0a0a12;
+            --bg-card: rgba(15, 15, 25, 0.7);
+            --fg-primary: #ffffff;
+            --fg-secondary: #a0a0b0;
+            --fg-muted: #606070;
+            --accent-primary: #00e5c7;
+            --accent-secondary: #f0b90b;
+            --accent-tertiary: #7b61ff;
+            --glass-bg: rgba(20, 20, 35, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-neon: 0 0 40px rgba(0, 229, 199, 0.15);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-ui: 'DM Sans', sans-serif;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f5f8;
+            --bg-secondary: #eaeaef;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --fg-primary: #0a0a12;
+            --fg-secondary: #505060;
+            --fg-muted: #909098;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.08);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        ::selection {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease, background 0.15s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10001;
+        }
+
+        .cursor.hover {
+            transform: scale(2);
+            background: rgba(0, 229, 199, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .cursor, .cursor-dot { display: none; }
+            body { cursor: auto; }
+        }
+
+        .intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .intro-logo {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 10vw, 8rem);
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: introPulse 2s ease-in-out;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .intro-tagline {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: var(--fg-secondary);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-top: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.5s forwards;
+        }
+
+        .intro-loader {
+            width: 200px;
+            height: 2px;
+            background: var(--glass-border);
+            margin-top: 3rem;
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 1s forwards;
+        }
+
+        .intro-loader-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            width: 0%;
+            animation: loadProgress 2s ease 1s forwards;
+        }
+
+        @keyframes introPulse {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes loadProgress {
+            to { width: 100%; }
+        }
+
+        .intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            z-index: 1000;
+            transition: all var(--transition-smooth);
+        }
+
+        .navbar.scrolled {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.75rem 2rem;
+        }
+
+        .navbar-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: var(--fg-primary);
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            transition: all var(--transition-fast);
+        }
+
+        .search-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 229, 199, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--fg-muted);
+            pointer-events: none;
+        }
+
+        .search-results {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+        }
+
+        .search-results.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .search-result-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .search-result-item img {
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--fg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .theme-toggle {
+            position: relative;
+        }
+
+        .nav-menu-btn {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .nav-menu-btn {
+                display: flex;
+            }
+            .search-container {
+                display: none;
+            }
+            .nav-actions .nav-btn:not(.nav-menu-btn):not(.theme-toggle) {
+                display: none;
+            }
+        }
+
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center top;
+            transition: transform 0.5s ease;
+        }
+
+        .hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to right,
+                var(--bg-primary) 0%,
+                rgba(5, 5, 8, 0.8) 40%,
+                rgba(5, 5, 8, 0.4) 70%,
+                transparent 100%
+            ),
+            linear-gradient(
+                to top,
+                var(--bg-primary) 0%,
+                transparent 30%
+            );
+        }
+
+        .hero-particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: floatParticle 10s infinite ease-in-out;
+        }
+
+        @keyframes floatParticle {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+            50% { transform: translateY(-100px) translateX(50px); opacity: 0.8; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            line-height: 1;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .hero-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--fg-secondary);
+        }
+
+        .hero-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--accent-secondary);
+        }
+
+        .hero-genre {
+            padding: 0.35rem 0.75rem;
+            background: rgba(0, 229, 199, 0.15);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+        }
+
+        .hero-description {
+            max-width: 600px;
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: var(--fg-secondary);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            animation: fadeInUp 0.8s ease 1s both;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #00b8a3);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 229, 199, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--fg-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--fg-muted);
+        }
+
+        .hero-slider-nav {
+            position: absolute;
+            bottom: 4rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+
+        .hero-slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .hero-slider-dot.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: scale(1.2);
+        }
+
+        .section {
+            padding: 5rem 2rem;
+            position: relative;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            letter-spacing: 0.02em;
+        }
+
+        .section-title span {
+            color: var(--accent-primary);
+        }
+
+        .view-all {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: gap var(--transition-fast);
+        }
+
+        .view-all:hover {
+            gap: 0.75rem;
+        }
+
+        .categories-section {
+            padding: 2rem 2rem 0;
+        }
+
+        .categories-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scrollbar-width: none;
+        }
+
+        .categories-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            flex-shrink: 0;
+            padding: 0.75rem 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: var(--fg-secondary);
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .category-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .category-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .mood-section {
+            background: linear-gradient(180deg, transparent, rgba(0, 229, 199, 0.03), transparent);
+        }
+
+        .mood-wheel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+
+        .mood-item {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mood-item::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(from 0deg, transparent, var(--mood-color), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+            animation: rotate 4s linear infinite paused;
+        }
+
+        .mood-item:hover::before,
+        .mood-item.active::before {
+            opacity: 1;
+            animation-play-state: running;
+        }
+
+        .mood-item.active {
+            border-color: var(--mood-color);
+            box-shadow: 0 0 30px var(--mood-color);
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .mood-item-inner {
+            position: relative;
+            z-index: 1;
+            width: calc(100% - 6px);
+            height: calc(100% - 6px);
+            border-radius: 50%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .mood-icon {
+            font-size: 2rem;
+        }
+
+        .mood-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .ai-section {
+            overflow: hidden;
+        }
+
+        .ai-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            position: relative;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .ai-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: aiPulse 2s infinite;
+        }
+
+        @keyframes aiPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(123, 97, 255, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(123, 97, 255, 0); }
+        }
+
+        .ai-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+        }
+
+        .ai-subtitle {
+            color: var(--fg-secondary);
+            font-size: 0.95rem;
+        }
+
+        .ai-thinking {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(123, 97, 255, 0.1);
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+        }
+
+        .ai-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .ai-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-tertiary);
+            border-radius: 50%;
+            animation: aiBounce 1.4s infinite ease-in-out;
+        }
+
+        .ai-dot:nth-child(1) { animation-delay: -0.32s; }
+        .ai-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes aiBounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .ai-result {
+            display: none;
+        }
+
+        .ai-result.visible {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .ai-movie-recommendation {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .ai-movie-recommendation {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .ai-movie-poster {
+            width: 150px;
+            height: 220px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .ai-movie-info h4 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-reason {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 229, 199, 0.1);
+            border-left: 3px solid var(--accent-primary);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.95rem;
+            color: var(--fg-secondary);
+        }
+
+        .movie-slider {
+            position: relative;
+        }
+
+        .movie-slider-container {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            padding: 1rem 0;
+        }
+
+        .movie-slider-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .movie-card {
+            flex-shrink: 0;
+            width: 200px;
+            scroll-snap-align: start;
+            position: relative;
+            cursor: pointer;
+            transition: transform var(--transition-smooth);
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+        }
+
+        .movie-card-poster {
+            width: 100%;
+            height: 300px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            position: relative;
+            z-index: 1;
+        }
+
+        .movie-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 50%);
+            border-radius: var(--radius-md);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1rem;
+            z-index: 2;
+        }
+
+        .movie-card:hover .movie-card-overlay {
+            opacity: 1;
+        }
+
+        .movie-card-preview {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            opacity: 0;
+            transition: all var(--transition-fast);
+        }
+
+        .movie-card:hover .movie-card-preview {
+            opacity: 1;
+        }
+
+        .movie-card-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .movie-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--fg-muted);
+        }
+
+        .movie-card-rating {
+            color: var(--accent-secondary);
+        }
+
+        .movie-card-info {
+            padding: 0.75rem 0;
+        }
+
+        .movie-card-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-card-info span {
+            font-size: 0.85rem;
+            color: var(--fg-muted);
+        }
+
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--fg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all var(--transition-fast);
+            backdrop-filter: blur(10px);
+        }
+
+        .slider-nav:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .slider-nav.prev { left: -1rem; }
+        .slider-nav.next { right: -1rem; }
+
+        @media (max-width: 768px) {
+            .slider-nav { display: none; }
+        }
+
+        .daily-pick {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .daily-card {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            align-items: center;
+        }
+
+        @media (max-width: 800px) {
+            .daily-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .daily-poster {
+            width: 100%;
+            height: 400px;
+            border-radius: var(--radius-lg);
+            object-fit: cover;
+        }
+
+        .daily-content {
+            padding: 1rem 0;
+        }
+
+        .daily-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--accent-secondary), #d4a50a);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--bg-primary);
+            margin-bottom: 1rem;
+        }
+
+        .daily-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+        }
+
+        .daily-description {
+            color: var(--fg-secondary);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .daily-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 800px) {
+            .daily-actions {
+                justify-content: center;
+            }
+        }
+
+        .random-btn {
+            background: linear-gradient(135deg, var(--accent-secondary), #d4a50a);
+            color: var(--bg-primary);
+            border: none;
+        }
+
+        .random-btn:hover {
+            box-shadow: 0 10px 40px rgba(240, 185, 11, 0.4);
+        }
+
+        .watchlist-section {
+            display: none;
+        }
+
+        .watchlist-section.visible {
+            display: block;
+        }
+
+        .watchlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .empty-watchlist {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--glass-bg);
+            border: 1px dashed var(--glass-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .empty-watchlist svg {
+            width: 80px;
+            height: 80px;
+            color: var(--fg-muted);
+            margin-bottom: 1rem;
+        }
+
+        .empty-watchlist h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-watchlist p {
+            color: var(--fg-muted);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            transform: scale(0.9) translateY(20px);
+            transition: transform var(--transition-smooth);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--fg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 100, 100, 0.2);
+            border-color: rgba(255, 100, 100, 0.5);
+            color: #ff6464;
+        }
+
+        .modal-trailer {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg-primary);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            overflow: hidden;
+        }
+
+        .modal-trailer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-content {
+            padding: 2rem;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .star {
+            width: 20px;
+            height: 20px;
+            color: var(--fg-muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .star.filled {
+            color: var(--accent-secondary);
+        }
+
+        .star:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .modal-genre {
+            padding: 0.35rem 0.75rem;
+            background: rgba(0, 229, 199, 0.1);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+        }
+
+        .modal-description {
+            color: var(--fg-secondary);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer {
+            background: var(--glass-bg);
+            border-top: 1px solid var(--glass-border);
+            padding: 4rem 2rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 900px) {
+            .footer-top {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .footer-top {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer-brand {
+            max-width: 300px;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .footer-description {
+            color: var(--fg-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--fg-secondary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .social-link:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-section h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--fg-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-copyright {
+            color: var(--fg-muted);
+            font-size: 0.9rem;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), #00b8a3);
+            border: none;
+            color: var(--bg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all var(--transition-smooth);
+            z-index: 1000;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 229, 199, 0.4);
+        }
+
+        .auth-modal {
+            max-width: 450px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--glass-border);
+            color: var(--fg-muted);
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .auth-tab.active {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--fg-primary);
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+        }
+
+        .form-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--fg-muted);
+        }
+
+        .form-submit {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), #00b8a3);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--bg-primary);
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 229, 199, 0.3);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 350px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--glass-border);
+            padding: 2rem;
+            z-index: 9000;
+            transition: right var(--transition-smooth);
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--fg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-links {
+            margin-top: 4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-menu-link {
+            padding: 1rem;
+            background: var(--glass-bg);
+            border-radius: var(--radius-md);
+            color: var(--fg-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all var(--transition-fast);
+        }
+
+        .mobile-menu-link:hover {
+            background: rgba(0, 229, 199, 0.1);
+        }
+
+        .music-toggle {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 1000;
+        }
+
+        .music-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--fg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .music-btn.playing {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .music-bars {
+            display: flex;
+            gap: 2px;
+            height: 16px;
+            align-items: flex-end;
+        }
+
+        .music-bar {
+            width: 3px;
+            background: currentColor;
+            animation: musicBar 0.8s ease infinite paused;
+        }
+
+        .music-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .music-bar:nth-child(2) { height: 16px; animation-delay: 0.2s; }
+        .music-bar:nth-child(3) { height: 12px; animation-delay: 0.4s; }
+
+        .music-btn.playing .music-bar {
+            animation-play-state: running;
+        }
+
+        @keyframes musicBar {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.5); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--glass-bg) 25%, rgba(255,255,255,0.1) 50%, var(--glass-bg) 75%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s infinite;
+        }
+
+        @keyframes skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 600px) {
+            .hero-content {
+                padding: 7rem 1.5rem 3rem;
+            }
+            
+            .section {
+                padding: 3rem 1.5rem;
+            }
+            
+            .hero-slider-nav {
+                display: none;
+            }
+            
+            .movie-card {
+                width: 150px;
+            }
+            
+            .movie-card-poster {
+                height: 220px;
+            }
+            
+            .ai-container {
+                padding: 1.5rem;
+            }
+            
+            .mood-item {
+                width: 90px;
+                height: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Intro Animation -->
+    <div class="intro-overlay" id="intro">
+        <div class="intro-logo">CINEVERSE X</div>
+        <p class="intro-tagline">Premium Streaming Experience</p>
+        <div class="intro-loader">
+            <div class="intro-loader-bar"></div>
+        </div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="#" class="logo">CINEVERSE X</a>
+            
+            <div class="search-container">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search movies, shows, actors...">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="nav-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                </button>
+                <button class="nav-btn" id="watchlistBtn" aria-label="Watchlist">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </button>
+                <button class="nav-btn" id="loginBtn" aria-label="Login">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </button>
+                <button class="nav-btn nav-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileMenuClose">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+        <div class="mobile-menu-links">
+            <a href="#" class="mobile-menu-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                </svg>
+                Home
+            </a>
+            <a href="#" class="mobile-menu-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
+                    <polyline points="17 2 12 7 7 2"/>
+                </svg>
+                Movies
+            </a>
+            <a href="#" class="mobile-menu-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                Watchlist
+            </a>
+            <a href="#" class="mobile-menu-link" id="mobileLoginBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Login
+            </a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-gradient"></div>
+        <div class="hero-particles" id="heroParticles"></div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="hero-badge-dot"></span>
+                <span id="heroBadge">Featured</span>
+            </div>
+            <h1 class="hero-title" id="heroTitle">Loading...</h1>
+            <div class="hero-meta">
+                <div class="hero-rating">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span id="heroRating">0.0</span>
+                </div>
+                <span class="hero-meta-item" id="heroYear">2024</span>
+                <span class="hero-meta-item" id="heroDuration">2h 30m</span>
+                <span class="hero-genre" id="heroGenre">Action</span>
+            </div>
+            <p class="hero-description" id="heroDescription">Loading movie description...</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary" id="heroPlayBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Watch Now
+                </button>
+                <button class="btn btn-secondary" id="heroInfoBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    More Info
+                </button>
+                <button class="btn btn-secondary" id="heroAddBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Add to List
+                </button>
+            </div>
+        </div>
+        
+        <div class="hero-slider-nav" id="heroSliderNav"></div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories-section">
+        <div class="categories-wrapper" id="categoriesWrapper">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="Action">Action</button>
+            <button class="category-btn" data-category="Sci-Fi">Sci-Fi</button>
+            <button class="category-btn" data-category="Horror">Horror</button>
+            <button class="category-btn" data-category="Romance">Romance</button>
+            <button class="category-btn" data-category="Thriller">Thriller</button>
+            <button class="category-btn" data-category="Comedy">Comedy</button>
+            <button class="category-btn" data-category="Drama">Drama</button>
+        </div>
+    </section>
+
+    <!-- Mood Finder -->
+    <section class="section mood-section">
+        <div class="section-header reveal">
+            <h2 class="section-title">Mood <span>Finder</span></h2>
+        </div>
+        
+        <div class="mood-wheel reveal">
+            <div class="mood-item" data-mood="happy" style="--mood-color: #ffd700;">
+                <div class="mood-item-inner">
+                    <span class="mood-icon">☀</span>
+                    <span class="mood-label">Happy</span>
+                </div>
+            </div>
+            <div class="mood-item" data-mood="sad" style="--mood-color: #6b7fff;">
+                <div class="mood-item-inner">
+                    <span class="mood-icon">🌧</span>
+                    <span class="mood-label">Sad</span>
+                </div>
+            </div>
+            <div class="mood-item" data-mood="romantic" style="--mood-color: #ff6b9d;">
+                <div class="mood-item-inner">
+                    <span class="mood-icon">💕</span>
+                    <span class="mood-label">Romantic</span>
+                </div>
+            </div>
+            <div class="mood-item" data-mood="thriller" style="--mood-color: #ff4757;">
+                <div class="mood-item-inner">
+                    <span class="mood-icon">⚡</span>
+                    <span class="mood-label">Thriller</span>
+                </div>
+            </div>
+            <div class="mood-item" data-mood="scared" style="--mood-color: #8b5cf6;">
+                <div class="mood-item-inner">
+                    <span class="mood-icon">👻</span>
+                    <span class="mood-label">Scared</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="moodResults" class="movie-slider" style="display: none;">
+            <div class="movie-slider-container" id="moodMoviesContainer"></div>
+        </div>
+    </section>
+
+    <!-- AI Recommendation -->
+    <section class="section ai-section">
+        <div class="ai-container reveal">
+            <div class="ai-header">
+                <div class="ai-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                        <circle cx="12" cy="12" r="4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="ai-title">AI RECOMMENDATION ENGINE</h3>
+                    <p class="ai-subtitle">Personalized picks based on your taste</p>
+                </div>
+            </div>
+            
+            <div class="ai-thinking" id="aiThinking">
+                <div class="ai-dots">
+                    <div class="ai-dot"></div>
+                    <div class="ai-dot"></div>
+                    <div class="ai-dot"></div>
+                </div>
+                <span>Analyzing your preferences...</span>
+            </div>
+            
+            <div class="ai-result" id="aiResult">
+                <div class="ai-movie-recommendation">
+                    <img src="" alt="" class="ai-movie-poster" id="aiMoviePoster">
+                    <div class="ai-movie-info">
+                        <h4 id="aiMovieTitle">Movie Title</h4>
+                        <div class="hero-meta" style="margin-bottom: 0.5rem;">
+                            <div class="hero-rating">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                <span id="aiMovieRating">0.0</span>
+                            </div>
+                            <span id="aiMovieYear">2024</span>
+                        </div>
+                        <div class="ai-reason" id="aiReason">
+                            AI recommendation reason will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Now -->
+    <section class="section">
+        <div class="section-header reveal">
+            <h2 class="section-title">Trending <span>Now</span></h2>
+            <a href="#" class="view-all">
+                View All
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="movie-slider reveal">
+            <button class="slider-nav prev" data-slider="trending">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <div class="movie-slider-container" id="trendingSlider"></div>
+            <button class="slider-nav next" data-slider="trending">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Daily Pick -->
+    <section class="section">
+        <div class="daily-pick reveal">
+            <div class="daily-card" id="dailyCard">
+                <img src="" alt="" class="daily-poster" id="dailyPoster">
+                <div class="daily-content">
+                    <span class="daily-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                        Daily Pick
+                    </span>
+                    <h2 class="daily-title" id="dailyTitle">Loading...</h2>
+                    <p class="daily-description" id="dailyDescription">Loading daily pick...</p>
+                    <div class="daily-actions">
+                        <button class="btn btn-primary" id="dailyPlayBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Watch Now
+                        </button>
+                        <button class="btn btn-secondary random-btn" id="randomBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 3 21 3 21 8"/>
+                                <line x1="4" y1="20" x2="21" y2="3"/>
+                                <polyline points="21 16 21 21 16 21"/>
+                                <line x1="15" y1="15" x2="21" y2="21"/>
+                                <line x1="4" y1="4" x2="9" y2="9"/>
+                            </svg>
+                            Random Pick
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Releases -->
+    <section class="section">
+        <div class="section-header reveal">
+            <h2 class="section-title">New <span>Releases</span></h2>
+            <a href="#" class="view-all">
+                View All
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="movie-slider reveal">
+            <button class="slider-nav prev" data-slider="newReleases">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <div class="movie-slider-container" id="newReleasesSlider"></div>
+            <button class="slider-nav next" data-slider="newReleases">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Watchlist Section -->
+    <section class="section watchlist-section" id="watchlistSection">
+        <div class="section-header reveal">
+            <h2 class="section-title">My <span>Watchlist</span></h2>
+        </div>
+        
+        <div class="watchlist-grid" id="watchlistGrid">
+            <div class="empty-watchlist" id="emptyWatchlist">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                <h4>Your watchlist is empty</h4>
+                <p>Start adding movies to keep track of what you want to watch</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo">CINEVERSE X</div>
+                    <p class="footer-description">
+                        Experience cinema like never before. Premium streaming with curated content, 
+                        AI recommendations, and an immersive viewing experience.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="YouTube">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h5>Browse</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Movies</a></li>
+                        <li><a href="#">TV Shows</a></li>
+                        <li><a href="#">New Releases</a></li>
+                        <li><a href="#">Coming Soon</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h5>Categories</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Sci-Fi</a></li>
+                        <li><a href="#">Horror</a></li>
+                        <li><a href="#">Romance</a></li>
+                        <li><a href="#">Anime</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h5>Support</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Preferences</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="footer-copyright">2026 CineVerse X. All rights reserved.</p>
+                <p class="footer-copyright">Made By Mohammad Minhal</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"/>
+        </svg>
+    </button>
+
+    <!-- Music Toggle -->
+    <div class="music-toggle">
+        <button class="music-btn" id="musicBtn" aria-label="Toggle background music">
+            <div class="music-bars">
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+            </div>
+        </button>
+    </div>
+
+    <!-- Movie Modal -->
+    <div class="modal-overlay" id="movieModal">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="modal-trailer">
+                <iframe id="trailerFrame" src="" allowfullscreen></iframe>
+            </div>
+            <div class="modal-content">
+                <h2 class="modal-title" id="modalTitle">Movie Title</h2>
+                <div class="modal-meta">
+                    <div class="modal-rating">
+                        <div class="stars" id="modalStars"></div>
+                        <span id="modalRating">0.0</span>
+                    </div>
+                    <span id="modalYear">2024</span>
+                    <span id="modalDuration">2h 30m</span>
+                </div>
+                <div class="modal-genres" id="modalGenres"></div>
+                <p class="modal-description" id="modalDescription">Movie description goes here...</p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="modalPlayBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Play
+                    </button>
+                    <button class="btn btn-secondary" id="modalAddBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Add to Watchlist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal auth-modal">
+            <button class="modal-close" id="authModalClose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="modal-content">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="signup">Sign Up</button>
+                </div>
+                
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <svg class="form-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        <input type="email" class="form-input" placeholder="Email address" required>
+                    </div>
+                    <div class="form-group">
+                        <svg class="form-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input type="password" class="form-input" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="form-submit">Login</button>
+                </form>
+                
+                <form class="auth-form" id="signupForm" style="display: none;">
+                    <div class="form-group">
+                        <svg class="form-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <input type="text" class="form-input" placeholder="Full name" required>
+                    </div>
+                    <div class="form-group">
+                        <svg class="form-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        <input type="email" class="form-input" placeholder="Email address" required>
+                    </div>
+                    <div class="form-group">
+                        <svg class="form-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input type="password" class="form-input" placeholder="Create password" required>
+                    </div>
+                    <button type="submit" class="form-submit">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const moviesData = [
+            {
+                id: 1,
+                title: "Dune: Part Two",
+                year: 2024,
+                rating: 8.6,
+                duration: "2h 46m",
+                genres: ["Sci-Fi", "Action", "Drama"],
+                poster: "https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
+                description: "Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a path of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, he endeavors to prevent a terrible future only he can foresee.",
+                trailer: "https://www.youtube.com/embed/Way9Dexny3w",
+                mood: ["thriller", "happy"]
+            },
+            {
+                id: 2,
+                title: "Oppenheimer",
+                year: 2023,
+                rating: 8.1,
+                duration: "3h",
+                genres: ["Drama", "Thriller", "History"],
+                poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBSSBaO0V.jpg",
+                description: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
+                trailer: "https://www.youtube.com/embed/uYPbbksJxIg",
+                mood: ["thriller", "sad"]
+            },
+            {
+                id: 3,
+                title: "Spider-Man: Across the Spider-Verse",
+                year: 2023,
+                rating: 8.7,
+                duration: "2h 20m",
+                genres: ["Action", "Adventure", "Animation"],
+                poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg",
+                description: "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence. When the heroes clash on how to handle a new threat, Miles must redefine what it means to be a hero.",
+                trailer: "https://www.youtube.com/embed/shW9i6k8cB0",
+                mood: ["happy", "thriller"]
+            },
+            {
+                id: 4,
+                title: "Poor Things",
+                year: 2023,
+                rating: 7.9,
+                duration: "2h 21m",
+                genres: ["Comedy", "Drama", "Romance"],
+                poster: "https://image.tmdb.org/t/p/w500/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/bQS43HSLZzMjZkcHJz4fGc7fNdz.jpg",
+                description: "Brought back to life by an unorthodox scientist, a young woman runs off with a debauched lawyer on a whirlwind adventure across the continents. Free from the prejudices of her times, she grows steadfast in her purpose to stand for equality and liberation.",
+                trailer: "https://www.youtube.com/embed/RlbR5N6veqw",
+                mood: ["happy", "romantic"]
+            },
+            {
+                id: 5,
+                title: "Alien: Romulus",
+                year: 2024,
+                rating: 7.2,
+                duration: "1h 59m",
+                genres: ["Horror", "Sci-Fi"],
+                poster: "https://image.tmdb.org/t/p/w500/bCxTHUga4a6zbhyojWfZlc2w9Nz.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/3V4kLQg0kSqPLctI5ziYWabAZYF.jpg",
+                description: "While scavenging the deep ends of a derelict space station, a group of young space colonizers come face to face with the most terrifying life form in the universe.",
+                trailer: "https://www.youtube.com/embed/b1xuLmY1KxI",
+                mood: ["scared", "thriller"]
+            },
+            {
+                id: 6,
+                title: "The Batman",
+                year: 2022,
+                rating: 7.7,
+                duration: "2h 56m",
+                genres: ["Action", "Crime", "Drama"],
+                poster: "https://image.tmdb.org/t/p/w500/74xTEgt7R36Fvber9r3Jo7QnB77r.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/5P8SmMzSNYikXpxil6BYzJ16611.jpg",
+                description: "In his second year of fighting crime, Batman uncovers corruption in Gotham City that connects to his own family while facing a serial killer known as the Riddler.",
+                trailer: "https://www.youtube.com/embed/mqqft2x_Aa4",
+                mood: ["thriller", "sad"]
+            },
+            {
+                id: 7,
+                title: "Barbie",
+                year: 2023,
+                rating: 7.0,
+                duration: "1h 54m",
+                genres: ["Comedy", "Adventure", "Fantasy"],
+                poster: "https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/nHf61UzkfFno5dHMNX5qMpfO3pS.jpg",
+                description: "Barbie and Ken are having the time of their lives in the colorful and seemingly perfect world of Barbie Land. However, when they get a chance to go to the real world, they soon discover the joys and perils of living among humans.",
+                trailer: "https://www.youtube.com/embed/pBk4NYhWNMM",
+                mood: ["happy", "romantic"]
+            },
+            {
+                id: 8,
+                title: "Interstellar",
+                year: 2014,
+                rating: 8.7,
+                duration: "2h 49m",
+                genres: ["Sci-Fi", "Adventure", "Drama"],
+                poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5fK5VQsXEG.jpg",
+                description: "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
+                trailer: "https://www.youtube.com/embed/zSWdZVtXT7E",
+                mood: ["sad", "thriller"]
+            },
+            {
+                id: 9,
+                title: "Blade Runner 2049",
+                year: 2017,
+                rating: 7.5,
+                duration: "2h 44m",
+                genres: ["Sci-Fi", "Drama"],
+                poster: "https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/sAtoMqDVhNDQBc3QJL3RF6hlhGq.jpg",
+                description: "Young Blade Runner K's discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard, who's been missing for thirty years.",
+                trailer: "https://www.youtube.com/embed/gCcx85zbxz4",
+                mood: ["thriller", "sad"]
+            },
+            {
+                id: 10,
+                title: "Whiplash",
+                year: 2014,
+                rating: 8.5,
+                duration: "1h 47m",
+                genres: ["Drama", "Music"],
+                poster: "https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/dVO2aP7peBwlFvw1AHnp6b9d8Lw.jpg",
+                description: "Under the direction of a ruthless instructor, a talented young drummer begins to pursue perfection at any cost, even his humanity.",
+                trailer: "https://www.youtube.com/embed/7d_jQycdQGo",
+                mood: ["sad", "thriller"]
+            },
+            {
+                id: 11,
+                title: "Parasite",
+                year: 2019,
+                rating: 8.5,
+                duration: "2h 12m",
+                genres: ["Thriller", "Drama", "Comedy"],
+                poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg",
+                description: "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.",
+                trailer: "https://www.youtube.com/embed/5xH0HfJHsaY",
+                mood: ["thriller", "sad"]
+            },
+            {
+                id: 12,
+                title: "Everything Everywhere All at Once",
+                year: 2022,
+                rating: 7.8,
+                duration: "2h 19m",
+                genres: ["Action", "Adventure", "Comedy"],
+                poster: "https://image.tmdb.org/t/p/w500/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg",
+                backdrop: "https://image.tmdb.org/t/p/original/fBJducGBcmrcIOQdhm4BUBNDiMu.jpg",
+                description: "An aging Chinese immigrant is swept up in an insane adventure, where she alone can save the world by exploring other universes connecting with the lives she could have led.",
+                trailer: "https://www.youtube.com/embed/wxN1T1uxQ2g",
+                mood: ["happy", "thriller"]
+            }
+        ];
+
+        let watchlist = JSON.parse(localStorage.getItem('cineverse_watchlist')) || [];
+        let currentHeroIndex = 0;
+        let currentMovie = null;
+        let currentCategory = 'all';
+        let currentMood = null;
+        let isPlaying = false;
+
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        const intro = document.getElementById('intro');
+        const scrollProgress = document.getElementById('scrollProgress');
+        const navbar = document.getElementById('navbar');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const themeToggle = document.getElementById('themeToggle');
+        const heroBg = document.getElementById('heroBg');
+        const heroTitle = document.getElementById('heroTitle');
+        const heroRating = document.getElementById('heroRating');
+        const heroYear = document.getElementById('heroYear');
+        const heroDuration = document.getElementById('heroDuration');
+        const heroGenre = document.getElementById('heroGenre');
+        const heroDescription = document.getElementById('heroDescription');
+        const heroSliderNav = document.getElementById('heroSliderNav');
+        const trendingSlider = document.getElementById('trendingSlider');
+        const newReleasesSlider = document.getElementById('newReleasesSlider');
+        const movieModal = document.getElementById('movieModal');
+        const authModal = document.getElementById('authModal');
+        const backToTop = document.getElementById('backToTop');
+        const musicBtn = document.getElementById('musicBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                intro.classList.add('hidden');
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    initHeroSlider();
+                    initParticles();
+                    runAIRecommendation();
+                }, 800);
+            }, 3500);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+            cursorDot.style.left = e.clientX - 3 + 'px';
+            cursorDot.style.top = e.clientY - 3 + 'px';
+        });
+
+        document.querySelectorAll('button, a, .movie-card, .mood-item, input').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            
+            scrollProgress.style.width = scrollPercent + '%';
+            
+            if (scrollTop > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            if (scrollTop > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+            
+            document.querySelectorAll('.reveal').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 100) {
+                    el.classList.add('visible');
+                }
+            });
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function initHeroSlider() {
+            const featuredMovies = moviesData.slice(0, 5);
+            
+            featuredMovies.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `hero-slider-dot ${index === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => updateHero(index));
+                heroSliderNav.appendChild(dot);
+            });
+            
+            updateHero(0);
+            
+            setInterval(() => {
+                currentHeroIndex = (currentHeroIndex + 1) % featuredMovies.length;
+                updateHero(currentHeroIndex);
+            }, 8000);
+        }
+
+        function updateHero(index) {
+            currentHeroIndex = index;
+            const movie = moviesData[index];
+            
+            heroBg.style.backgroundImage = `url(${movie.backdrop})`;
+            heroTitle.textContent = movie.title;
+            heroRating.textContent = movie.rating;
+            heroYear.textContent = movie.year;
+            heroDuration.textContent = movie.duration;
+            heroGenre.textContent = movie.genres[0];
+            heroDescription.textContent = movie.description;
+            
+            document.querySelectorAll('.hero-slider-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            
+            currentMovie = movie;
+        }
+
+        document.getElementById('heroPlayBtn').addEventListener('click', () => {
+            if (currentMovie) openMovieModal(currentMovie);
+        });
+
+        document.getElementById('heroInfoBtn').addEventListener('click', () => {
+            if (currentMovie) openMovieModal(currentMovie);
+        });
+
+        document.getElementById('heroAddBtn').addEventListener('click', () => {
+            if (currentMovie) addToWatchlist(currentMovie);
+        });
+
+        function initParticles() {
+            const container = document.getElementById('heroParticles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.opacity = Math.random() * 0.5 + 0.2;
+                container.appendChild(particle);
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.toggleAttribute('data-theme');
+            if (document.documentElement.hasAttribute('data-theme')) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        });
+
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = e.target.value.toLowerCase().trim();
+                if (query.length > 0) {
+                    const results = moviesData.filter(m => 
+                        m.title.toLowerCase().includes(query) ||
+                        m.genres.some(g => g.toLowerCase().includes(query))
+                    );
+                    renderSearchResults(results);
+                } else {
+                    searchResults.classList.remove('active');
+                }
+            }, 300);
+        });
+
+        function renderSearchResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item"><span>No results found</span></div>';
+            } else {
+                searchResults.innerHTML = results.map(movie => `
+                    <div class="search-result-item" data-id="${movie.id}">
+                        <img src="${movie.poster}" alt="${movie.title}">
+                        <div>
+                            <div style="font-weight: 600;">${movie.title}</div>
+                            <div style="font-size: 0.85rem; color: var(--fg-muted);">${movie.year} - ${movie.genres[0]}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const movie = moviesData.find(m => m.id === parseInt(item.dataset.id));
+                        if (movie) openMovieModal(movie);
+                        searchResults.classList.remove('active');
+                        searchInput.value = '';
+                    });
+                });
+            }
+            searchResults.classList.add('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderMovies();
+            });
+        });
+
+        document.querySelectorAll('.mood-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.mood-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                currentMood = item.dataset.mood;
+                
+                const moodMovies = moviesData.filter(m => m.mood.includes(currentMood));
+                const moodResults = document.getElementById('moodResults');
+                const moodContainer = document.getElementById('moodMoviesContainer');
+                
+                moodContainer.innerHTML = moodMovies.map(movie => createMovieCard(movie)).join('');
+                moodResults.style.display = 'block';
+                
+                attachCardListeners(moodContainer);
+            });
+        });
+
+        function runAIRecommendation() {
+            const thinking = document.getElementById('aiThinking');
+            const result = document.getElementById('aiResult');
+            
+            setTimeout(() => {
+                const movie = moviesData[Math.floor(Math.random() * moviesData.length)];
+                const reasons = [
+                    `Based on your viewing history, this ${movie.genres[0]} masterpiece aligns perfectly with your taste for thought-provoking cinema.`,
+                    `Our AI detected patterns in your preferences suggesting you'd love the narrative depth of this ${movie.genres[0]} film.`,
+                    `The emotional resonance and visual storytelling in this ${movie.genres[0]} piece matches your unique viewing profile.`,
+                    `Your affinity for ${movie.genres[1] || movie.genres[0]} themes makes this a perfect match according to our neural network.`
+                ];
+                
+                document.getElementById('aiMoviePoster').src = movie.poster;
+                document.getElementById('aiMovieTitle').textContent = movie.title;
+                document.getElementById('aiMovieRating').textContent = movie.rating;
+                document.getElementById('aiMovieYear').textContent = movie.year;
+                document.getElementById('aiReason').textContent = reasons[Math.floor(Math.random() * reasons.length)];
+                
+                thinking.style.display = 'none';
+                result.classList.add('visible');
+                
+                setTimeout(() => {
+                    thinking.style.display = 'flex';
+                    result.classList.remove('visible');
+                    setTimeout(runAIRecommendation, 3000);
+                }, 15000);
+            }, 3000);
+        }
+
+        function renderMovies() {
+            let filteredMovies = moviesData;
+            
+            if (currentCategory !== 'all') {
+                filteredMovies = moviesData.filter(m => m.genres.includes(currentCategory));
+            }
+            
+            const trending = [...filteredMovies].sort((a, b) => b.rating - a.rating).slice(0, 8);
+            trendingSlider.innerHTML = trending.map(movie => createMovieCard(movie)).join('');
+            
+            const newReleases = [...filteredMovies].sort(() => Math.random() - 0.5).slice(0, 8);
+            newReleasesSlider.innerHTML = newReleases.map(movie => createMovieCard(movie)).join('');
+            
+            attachCardListeners(trendingSlider);
+            attachCardListeners(newReleasesSlider);
+            
+            updateDailyPick();
+        }
+
+        function createMovieCard(movie) {
+            return `
+                <div class="movie-card" data-id="${movie.id}">
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-card-poster" loading="lazy">
+                    <div class="movie-card-overlay">
+                        <div class="movie-card-preview">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                        </div>
+                        <div class="movie-card-title">${movie.title}</div>
+                        <div class="movie-card-meta">
+                            <span class="movie-card-rating">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                ${movie.rating}
+                            </span>
+                            <span>${movie.year}</span>
+                        </div>
+                    </div>
+                    <div class="movie-card-info">
+                        <h4>${movie.title}</h4>
+                        <span>${movie.genres[0]}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function attachCardListeners(container) {
+            container.querySelectorAll('.movie-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const movie = moviesData.find(m => m.id === parseInt(card.dataset.id));
+                    if (movie) openMovieModal(movie);
+                });
+            });
+        }
+
+        function updateDailyPick() {
+            const today = new Date().getDate();
+            const movie = moviesData[today % moviesData.length];
+            
+            document.getElementById('dailyPoster').src = movie.poster;
+            document.getElementById('dailyTitle').textContent = movie.title;
+            document.getElementById('dailyDescription').textContent = movie.description;
+            
+            document.getElementById('dailyPlayBtn').onclick = () => openMovieModal(movie);
+        }
+
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            const movie = moviesData[Math.floor(Math.random() * moviesData.length)];
+            document.getElementById('dailyPoster').src = movie.poster;
+            document.getElementById('dailyTitle').textContent = movie.title;
+            document.getElementById('dailyDescription').textContent = movie.description;
+            
+            document.getElementById('dailyPlayBtn').onclick = () => openMovieModal(movie);
+        });
+
+        function openMovieModal(movie) {
+            currentMovie = movie;
+            
+            document.getElementById('trailerFrame').src = movie.trailer;
+            document.getElementById('modalTitle').textContent = movie.title;
+            document.getElementById('modalRating').textContent = movie.rating;
+            document.getElementById('modalYear').textContent = movie.year;
+            document.getElementById('modalDuration').textContent = movie.duration;
+            document.getElementById('modalDescription').textContent = movie.description;
+            
+            document.getElementById('modalGenres').innerHTML = movie.genres.map(g => 
+                `<span class="modal-genre">${g}</span>`
+            ).join('');
+            
+            const starsContainer = document.getElementById('modalStars');
+            starsContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('div');
+                star.className = `star ${i <= Math.round(movie.rating / 2) ? 'filled' : ''}`;
+                star.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                star.addEventListener('click', () => {
+                    document.querySelectorAll('#modalStars .star').forEach((s, index) => {
+                        s.classList.toggle('filled', index < i);
+                    });
+                });
+                starsContainer.appendChild(star);
+            }
+            
+            const isInWatchlist = watchlist.includes(movie.id);
+            document.getElementById('modalAddBtn').innerHTML = isInWatchlist ? 
+                `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> In Watchlist` :
+                `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Add to Watchlist`;
+            
+            movieModal.classList.add('active');
+        }
+
+        document.getElementById('modalClose').addEventListener('click', () => {
+            movieModal.classList.remove('active');
+            document.getElementById('trailerFrame').src = '';
+        });
+
+        document.getElementById('modalAddBtn').addEventListener('click', () => {
+            if (currentMovie) addToWatchlist(currentMovie);
+        });
+
+        movieModal.addEventListener('click', (e) => {
+            if (e.target === movieModal) {
+                movieModal.classList.remove('active');
+                document.getElementById('trailerFrame').src = '';
+            }
+        });
+
+        function addToWatchlist(movie) {
+            if (!watchlist.includes(movie.id)) {
+                watchlist.push(movie.id);
+                localStorage.setItem('cineverse_watchlist', JSON.stringify(watchlist));
+                showNotification(`${movie.title} added to watchlist!`);
+                renderWatchlist();
+            } else {
+                showNotification(`${movie.title} is already in your watchlist`);
+            }
+        }
+
+        function renderWatchlist() {
+            const section = document.getElementById('watchlistSection');
+            const grid = document.getElementById('watchlistGrid');
+            const empty = document.getElementById('emptyWatchlist');
+            
+            if (watchlist.length > 0) {
+                const watchlistMovies = moviesData.filter(m => watchlist.includes(m.id));
+                empty.style.display = 'none';
+                grid.innerHTML = watchlistMovies.map(movie => `
+                    <div class="movie-card" data-id="${movie.id}">
+                        <img src="${movie.poster}" alt="${movie.title}" class="movie-card-poster">
+                        <div class="movie-card-overlay">
+                            <div class="movie-card-preview">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                            </div>
+                            <div class="movie-card-title">${movie.title}</div>
+                            <div class="movie-card-meta">
+                                <span class="movie-card-rating">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                    ${movie.rating}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                grid.querySelectorAll('.movie-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const movie = moviesData.find(m => m.id === parseInt(card.dataset.id));
+                        if (movie) openMovieModal(movie);
+                    });
+                });
+            } else {
+                empty.style.display = 'block';
+            }
+        }
+
+        document.getElementById('watchlistBtn').addEventListener('click', () => {
+            const section = document.getElementById('watchlistSection');
+            section.classList.toggle('visible');
+            if (section.classList.contains('visible')) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            authModal.classList.add('active');
+        });
+
+        document.getElementById('mobileLoginBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            mobileMenu.classList.remove('active');
+            authModal.classList.add('active');
+        });
+
+        document.getElementById('authModalClose').addEventListener('click', () => {
+            authModal.classList.remove('active');
+        });
+
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                authModal.classList.remove('active');
+            }
+        });
+
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const isLogin = tab.dataset.tab === 'login';
+                document.getElementById('loginForm').style.display = isLogin ? 'flex' : 'none';
+                document.getElementById('signupForm').style.display = isLogin ? 'none' : 'flex';
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showNotification('Login successful! Welcome back.');
+            authModal.classList.remove('active');
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showNotification('Account created! Welcome to CineVerse X.');
+            authModal.classList.remove('active');
+        });
+
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+        });
+
+        document.getElementById('mobileMenuClose').addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+        });
+
+        document.querySelectorAll('.slider-nav').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const slider = btn.parentElement.querySelector('.movie-slider-container');
+                const scrollAmount = 400;
+                
+                if (btn.classList.contains('prev')) {
+                    slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                } else {
+                    slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            });
+        });
+
+        musicBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            musicBtn.classList.toggle('playing', isPlaying);
+            showNotification(isPlaying ? 'Ambient music enabled' : 'Music paused');
+        });
+
+        function showNotification(message) {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                padding: 1rem 2rem;
+                border-radius: 50px;
+                color: var(--fg-primary);
+                font-size: 0.95rem;
+                z-index: 10000;
+                animation: slideUp 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(-50%) translateY(10px)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                movieModal.classList.remove('active');
+                authModal.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                document.getElementById('trailerFrame').src = '';
+            }
+        });
+
+        renderMovies();
+        renderWatchlist();
+
+        setTimeout(() => {
+            document.querySelectorAll('.reveal').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight) {
+                    el.classList.add('visible');
+                }
+            });
+        }, 4000);
+    </script>
+</body>
+</html>
